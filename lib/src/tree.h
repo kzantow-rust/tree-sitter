@@ -1,6 +1,8 @@
 #ifndef TREE_SITTER_TREE_H_
 #define TREE_SITTER_TREE_H_
 
+#include "./subtree.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,17 +17,18 @@ typedef struct {
 struct TSTree {
   Subtree root;
   const TSLanguage *language;
-  ParentCacheEntry *parent_cache;
-  uint32_t parent_cache_start;
-  uint32_t parent_cache_size;
+#ifdef __wasm__
+  // The WebAssembly instance that owns the language's function pointers.
+  uint32_t language_context_id;
+  // Created lazily when another instance requests the tree's language.
+  const TSLanguage *volatile unparseable_language;
+#endif
   TSRange *included_ranges;
-  unsigned included_range_count;
+  uint32_t included_range_count;
 };
 
-TSTree *ts_tree_new(Subtree root, const TSLanguage *language, const TSRange *, unsigned);
-TSNode ts_node_new(const TSTree *, const Subtree *, Length, TSSymbol);
-TSNode ts_tree_get_cached_parent(const TSTree *, const TSNode *);
-void ts_tree_set_cached_parent(const TSTree *, const TSNode *, const TSNode *);
+TSTree *ts_tree_new(Subtree root, const TSLanguage *language, const TSRange *included_ranges, uint32_t included_range_count);
+TSNode ts_node_new(const TSTree *tree, const Subtree *subtree, Length position, TSSymbol alias);
 
 #ifdef __cplusplus
 }

@@ -6,7 +6,7 @@
 #define POINT_ZERO ((TSPoint) {0, 0})
 #define POINT_MAX ((TSPoint) {UINT32_MAX, UINT32_MAX})
 
-static inline TSPoint point__new(unsigned row, unsigned column) {
+static inline TSPoint point__new(uint32_t row, uint32_t column) {
   TSPoint result = {row, column};
   return result;
 }
@@ -22,7 +22,7 @@ static inline TSPoint point_sub(TSPoint a, TSPoint b) {
   if (a.row > b.row)
     return point__new(a.row - b.row, a.column);
   else
-    return point__new(0, a.column - b.column);
+    return point__new(0, (a.column >= b.column) ? a.column - b.column : 0);
 }
 
 static inline bool point_lte(TSPoint a, TSPoint b) {
@@ -33,22 +33,16 @@ static inline bool point_lt(TSPoint a, TSPoint b) {
   return (a.row < b.row) || (a.row == b.row && a.column < b.column);
 }
 
+static inline bool point_gt(TSPoint a, TSPoint b) {
+  return (a.row > b.row) || (a.row == b.row && a.column > b.column);
+}
+
+static inline bool point_gte(TSPoint a, TSPoint b) {
+  return (a.row > b.row) || (a.row == b.row && a.column >= b.column);
+}
+
 static inline bool point_eq(TSPoint a, TSPoint b) {
   return a.row == b.row && a.column == b.column;
-}
-
-static inline TSPoint point_min(TSPoint a, TSPoint b) {
-  if (a.row < b.row || (a.row == b.row && a.column < b.column))
-    return a;
-  else
-    return b;
-}
-
-static inline TSPoint point_max(TSPoint a, TSPoint b) {
-  if (a.row > b.row || (a.row == b.row && a.column > b.column))
-    return a;
-  else
-    return b;
 }
 
 #endif

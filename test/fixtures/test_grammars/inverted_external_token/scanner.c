@@ -1,4 +1,4 @@
-#include <tree_sitter/parser.h>
+#include "tree_sitter/parser.h"
 
 enum {
   LINE_BREAK
@@ -7,8 +7,6 @@ enum {
 void *tree_sitter_inverted_external_token_external_scanner_create() { return NULL; }
 
 void tree_sitter_inverted_external_token_external_scanner_destroy(void *payload) {}
-
-void tree_sitter_inverted_external_token_external_scanner_reset(void *payload) {}
 
 unsigned tree_sitter_inverted_external_token_external_scanner_serialize(
   void *payload,
@@ -22,8 +20,11 @@ void tree_sitter_inverted_external_token_external_scanner_deserialize(
 ) {}
 
 bool tree_sitter_inverted_external_token_external_scanner_scan(
-  void *payload, TSLexer *lexer, const bool *whitelist) {
-  while (lexer->lookahead == ' ') {
+  void *payload,
+  TSLexer *lexer,
+  const bool *valid_symbols
+) {
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\r') {
     lexer->advance(lexer, true);
   }
 
@@ -34,7 +35,7 @@ bool tree_sitter_inverted_external_token_external_scanner_scan(
     lexer->mark_end(lexer);
 
     // Skip whitespace *after* having marked the end.
-    while (lexer->lookahead == ' ' || lexer->lookahead == '\n') {
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\n' || lexer->lookahead == '\r') {
       lexer->advance(lexer, true);
     }
 
